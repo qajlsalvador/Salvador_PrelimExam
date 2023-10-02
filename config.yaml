@@ -1,0 +1,44 @@
+---
+- hosts: all
+  become: true
+  vars:
+    uname: AndreuSalvador
+  tasks:
+
+  - name: Install and python3 in Ubuntu and CentOS
+    package:
+      name: python3
+      state: latest
+
+  - name: install pip in Ubuntu and CentOS
+    package:
+      name: python3-pip
+      state: latest
+
+  - name: Install openjdk on Ubuntu
+    apt:
+      update_cache: yes
+      name: openjdk-11-jre-headless
+      state: latest
+    when: ansible_distribution == "Ubuntu"
+
+  - name: Install openjdk on CentOS
+    dnf:
+      name: java-11-openjdk-devel
+      state: latest
+    when: ansible_distribution == "CentOS"
+
+  - name: Make pip3 as the default pip
+    shell:
+      echo 'alias pip=/home/trilift/.local/bin/pip3 >> ~/.bashrc'
+      echo 'alias python=/usr/bin/python3 >> ~/.bashrc'
+
+  - name: making an motd
+    debug:
+      msg: " Ansible Managed node by {{uname}} "
+
+  - name: Creating a user
+    ansible.builtin.user:
+      name: "{{ uname }}"
+      createhome: yes
+      home: "/home/{{ uname }}"
